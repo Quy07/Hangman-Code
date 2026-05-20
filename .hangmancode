@@ -1,0 +1,152 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+
+public class Hangman {
+
+    // A pool of secret words for the game
+    private static final String[] WORD_POOL = {
+        "programming", "java", "developer", "computer", "algorithm", 
+        "interface", "variable", "compiler", "application", "database"
+    };
+
+    private static final int MAX_LIVES = 6;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+        
+        // Select a random word from the pool
+        String secretWord = WORD_POOL[random.nextInt(WORD_POOL.length)].toLowerCase();
+        
+        // Array to track the current state of the hidden word (e.g., '_', '_', 'a')
+        char[] playerGuesses = new char[secretWord.length()];
+        Arrays.fill(playerGuesses, '_');
+
+        int livesLeft = MAX_LIVES;
+        List<Character> guessedLetters = new ArrayList<>();
+
+        System.out.println("=================================");
+        System.out.println("       WELCOME TO HANGMAN        ");
+        System.out.println("=================================");
+
+        // Main game loop
+        while (livesLeft > 0 && isWordStillHidden(playerGuesses)) {
+            printHangmanScaffold(livesLeft);
+            printGameState(playerGuesses, livesLeft, guessedLetters);
+
+            System.out.print("Enter a letter: ");
+            String input = scanner.nextLine().toLowerCase();
+
+            // Input Validation
+            if (input.length() != 1 || !Character.isLetter(input.charAt(0))) {
+                System.out.println("❌ Invalid input! Please enter a single alphabetical letter.\n");
+                continue;
+            }
+
+            char guess = input.charAt(0);
+
+            // Check if the letter was already guessed
+            if (guessedLetters.contains(guess)) {
+                System.out.println("⚠️ You already guessed '" + guess + "'. Try a different letter.\n");
+                continue;
+            }
+
+            // Track the new guess
+            guessedLetters.add(guess);
+
+            // Process the guess
+            if (secretWord.indexOf(guess) >= 0) {
+                System.out.println("🎯 Good guess! '" + guess + "' is in the word.\n");
+                // Reveal the letter in the playerGuesses array
+                for (int i = 0; i < secretWord.length(); i++) {
+                    if (secretWord.charAt(i) == guess) {
+                        playerGuesses[i] = guess;
+                    }
+                }
+            } else {
+                System.out.println("❌ Wrong guess! '" + guess + "' is not in the word.\n");
+                livesLeft--;
+            }
+        }
+
+        // Game Over evaluation
+        printHangmanScaffold(livesLeft);
+        if (livesLeft > 0) {
+            System.out.println("🎉 CONGRATULATIONS! You guessed the word: " + secretWord.toUpperCase());
+        } else {
+            System.out.println("💀 GAME OVER! You ran out of lives.");
+            System.out.println("The correct word was: " + secretWord.toUpperCase());
+        }
+
+        scanner.close();
+    }
+
+    // Helper method to check if the word is fully guessed
+    private static boolean isWordStillHidden(char[] playerGuesses) {
+        for (char c : playerGuesses) {
+            if (c == '_') {
+                return true; 
+            }
+        }
+        return false;
+    }
+
+    // Helper method to print the current word progress and metadata
+    private static void printGameState(char[] playerGuesses, int livesLeft, List<Character> guessedLetters) {
+        System.out.print("Word: ");
+        for (char c : playerGuesses) {
+            System.out.print(c + " ");
+        }
+        System.out.println("\nLives remaining: " + livesLeft);
+        System.out.println("Guessed letters: " + guessedLetters);
+        System.out.println("---------------------------------");
+    }
+
+    // Helper method to render the text-based ASCII hangman art
+    private static void printHangmanScaffold(int livesLeft) {
+        System.out.println("  +---+");
+        System.out.println("  |   |");
+        
+        switch (livesLeft) {
+            case 6 -> {
+                System.out.println("      |");
+                System.out.println("      |");
+                System.out.println("      |");
+            }
+            case 5 -> {
+                System.out.println("  O   |");
+                System.out.println("      |");
+                System.out.println("      |");
+            }
+            case 4 -> {
+                System.out.println("  O   |");
+                System.out.println("  |   |");
+                System.out.println("      |");
+            }
+            case 3 -> {
+                System.out.println("  O   |");
+                System.out.println(" /|   |");
+                System.out.println("      |");
+            }
+            case 2 -> {
+                System.out.println("  O   |");
+                System.out.println(" /|\\  |");
+                System.out.println("      |");
+            }
+            case 1 -> {
+                System.out.println("  O   |");
+                System.out.println(" /|\\  |");
+                System.out.println(" /    |");
+            }
+            case 0 -> {
+                System.out.println("  O   |");
+                System.out.println(" /|\\  |");
+                System.out.println(" / \\  |");
+            }
+        }
+        System.out.println("    =====");
+    }
+}
