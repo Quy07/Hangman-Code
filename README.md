@@ -1,2 +1,3 @@
 # Hangman-Code
-My Implemented code for Hangman
+What is Hangman?
+Hangman is a word game where you must guess the correct letter.
